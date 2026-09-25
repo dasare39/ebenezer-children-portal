@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Church of Pentecost - Ebenezer Assembly | Children Ministry Portal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for Visual Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SheetJS for Excel Exports -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- html2pdf.js for Document PDF Exports -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pentecost: {
+                            blue: '#0033a0',
+                            darkblue: '#002270',
+                            gold: '#ffb81c',
+                            red: '#e31837'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-transition {
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-full-width { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
+            body { background: white !important; color: black !important; }
+            .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; border: 1px solid #e5e7eb; }
+            #mainContent { padding: 0 !important; }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="bg-pentecost-blue text-white shadow-md sticky top-0 z-40 no-print flex-shrink-0">
+        <div class="w-full px-4 sm:px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle Menu" class="p-2 rounded-lg hover:bg-white/10 text-white focus:outline-none transition flex items-center justify-center">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="bg-white p-1 rounded-full flex items-center justify-center h-10 w-10 shadow-sm overflow-hidden">
+                        <!-- Church Logo Placeholder -->
+                        <img src="img/logo.jpg" onerror="this.onerror=null; this.src='https://via.placeholder.com/100/0033a0/ffffff?text=COP';" alt="Church Logo" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base leading-tight">The Church of Pentecost</h1>
+                        <p class="text-xs text-pentecost-gold font-medium">Ebenezer Assembly - Children's Ministry Portal</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-pentecost-darkblue/60 border border-white/10 px-3 py-1.5 rounded-lg shadow-inner">
+                    <i class="fa-solid fa-user-shield text-pentecost-gold text-xs"></i>
+                    <span class="text-xs font-medium text-white/80 hidden sm:inline">User Role:</span>
+                    <select id="roleToggle" onchange="changeRole()" class="bg-transparent text-xs font-bold text-white outline-none cursor-pointer">
+                        <option class="text-slate-800" value="MinistryLeader">Ministry Leader</option>
+                        <option class="text-slate-800" value="Admin">Administrator</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 relative overflow-hidden">
+        <!-- Sidebar Backdrop for Mobile -->
+        <div id="sidebarBackdrop" onclick="closeSidebarMobile()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-20 hidden lg:hidden transition-opacity"></div>
+
+        <!-- COLLAPSIBLE SIDEBAR -->
+        <aside id="sidebar" class="sidebar-transition fixed lg:static top-0 bottom-0 left-0 z-30 bg-slate-900 text-slate-300 w-64 flex flex-col shadow-xl lg:shadow-none -translate-x-full lg:translate-x-0 no-print flex-shrink-0">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold tracking-wider uppercase text-slate-400">Children Ministry</span>
+                <button id="pinSidebarBtn" onclick="togglePinSidebar()" title="Pin Sidebar" class="text-slate-400 hover:text-pentecost-gold p-1 rounded transition text-sm">
+                    <i id="pinIcon" class="fa-solid fa-thumbtack"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition bg-slate-800 text-white">
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-blue-400"></i><span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('members')" id="nav-members" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-children w-5 text-center text-amber-400"></i><span>Children Directory</span>
+                </button>
+                <button onclick="switchTab('attendance')" id="nav-attendance" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-clipboard-user w-5 text-center text-emerald-400"></i><span>Mark Attendance</span>
+                </button>
+                <button onclick="switchTab('attendance-logs')" id="nav-attendance-logs" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center text-cyan-400"></i><span>Attendance History</span>
+                </button>
+                <button onclick="switchTab('visitors')" id="nav-visitors" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-person-walking-luggage w-5 text-center text-purple-400"></i><span>Visitors Log</span>
+                </button>
+                <button onclick="switchTab('dedications')" id="nav-dedications" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-baby w-5 text-center text-pink-400"></i><span>Child Dedications</span>
+                </button>
+                <button onclick="switchTab('offering')" id="nav-offering" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-hand-holding-dollar w-5 text-center text-yellow-400"></i><span>Offering & Finances</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+                <p class="mb-1 text-slate-400 font-semibold">Ebenezer Assembly v3.5</p>
+                <p class="text-[11px] text-slate-500">Children Ministry System</p>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <main id="mainContent" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full max-w-[1600px] mx-auto transition-all duration-300 print-full-width">
+            
+            <!-- 1. DASHBOARD TAB -->
+            <section id="tab-dashboard" class="tab-content block space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Children Ministry Overview</h2>
+                        <p class="text-slate-500 text-sm">Real-time stats, age groupings, and financial records.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 no-print">
+                        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importBackup(event)">
+                        <button onclick="document.getElementById('importFile').click()" class="bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-50 shadow-sm transition text-sm font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-upload text-slate-500"></i> Restore Data
+                        </button>
+                        <button onclick="exportBackup()" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-2 rounded-lg shadow-sm transition text-sm font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Backup Data
+                        </button>
+                        <button onclick="window.print()" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg shadow-sm transition text-sm font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-print"></i> Print Summary
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-pentecost-blue flex items-center justify-center text-lg"><i class="fa-solid fa-children"></i></div>
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase text-slate-400">Total Children</p>
+                            <h3 id="dash-total-members" class="text-xl font-bold text-slate-900">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-lg"><i class="fa-solid fa-baby"></i></div>
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase text-slate-400">Class 0 - 6 Yrs</p>
+                            <h3 id="dash-group-06" class="text-xl font-bold text-slate-900">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg"><i class="fa-solid fa-child"></i></div>
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase text-slate-400">Class 7 - 9 Yrs</p>
+                            <h3 id="dash-group-79" class="text-xl font-bold text-slate-900">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg"><i class="fa-solid fa-child-reaching"></i></div>
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase text-slate-400">Class 10 - 12 Yrs</p>
+                            <h3 id="dash-group-1012" class="text-xl font-bold text-slate-900">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-lg"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase text-slate-400">Youth (13+ Yrs)</p>
+                            <h3 id="dash-group-13plus" class="text-xl font-bold text-purple-700">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial & Attendance Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-semibold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-line text-pentecost-blue"></i> Attendance Trend</h3>
+                        <div class="relative h-64 w-full"><canvas id="chartAttendance"></canvas></div>
+                    </div>
+                    <!-- Financial Chart visible to Leaders -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-semibold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-column text-amber-500"></i> Ministry Offering & Collections</h3>
+                        <div class="relative h-64 w-full"><canvas id="chartOffering"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. MEMBERS / CHILDREN DIRECTORY TAB -->
+            <section id="tab-members" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Children Directory & Register</h2>
+                        <p class="text-slate-500 text-sm">Register children, track age progression, and filter by class.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 no-print">
+                        <button onclick="exportToExcel('members-table', 'Children_Directory')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-excel"></i> Export (Excel)
+                        </button>
+                        <button onclick="toggleForm('member-form-container')" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Add Member
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add / Edit Child Form -->
+                <div id="member-form-container" class="hidden bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-child text-pentecost-blue"></i> Register Child</h3>
+                        <button type="button" onclick="toggleForm('member-form-container')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form id="form-member" onsubmit="handleMemberSubmit(event)">
+                        <input type="hidden" id="m_id">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="lg:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Child's Full Name *</label>
+                                <input type="text" id="m_name" required placeholder="e.g. Samuel Mensah" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pentecost-blue">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Gender *</label>
+                                <select id="m_gender" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Date of Birth *</label>
+                                <input type="date" id="m_dob" required onchange="previewAgeGroup()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+                            </div>
+
+                            <!-- Auto Calculated Class Preview -->
+                            <div class="lg:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500">Auto-Assigned Class:</p>
+                                    <p id="preview-class-text" class="text-sm font-bold text-pentecost-blue">Select Date of Birth above</p>
+                                </div>
+                                <span id="preview-class-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-600">N/A</span>
+                            </div>
+
+                            <div class="lg:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Parent / Guardian Name *</label>
+                                <input type="text" id="m_parent" required placeholder="e.g. Elder & Deaconess Mensah" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Parent Contact Number *</label>
+                                <input type="tel" id="m_contact" required placeholder="e.g. 0240000000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Residential Address</label>
+                                <input type="text" id="m_address" placeholder="e.g. Estate Area, Koforidua" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Membership Status</label>
+                                <select id="m_status" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                                    <option value="Active">Active Member</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Transferred to Youth">Transferred to Youth</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-5 flex justify-end gap-2">
+                            <button type="button" onclick="toggleForm('member-form-container')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancel</button>
+                            <button type="submit" class="bg-pentecost-blue hover:bg-blue-800 text-white px-6 py-2 rounded-lg font-semibold text-sm shadow-sm transition">Save Record</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Filter Controls & Directory Table -->
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto flex-1">
+                            <div class="relative w-full sm:w-64">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                                <input type="text" id="memberSearch" oninput="renderMembers()" placeholder="Search by child or parent name..." class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            </div>
+                            <!-- Age Group Class Selector -->
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <label class="text-xs font-semibold text-slate-600 whitespace-nowrap">Filter Class:</label>
+                                <select id="classFilter" onchange="renderMembers()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 outline-none bg-white w-full sm:w-auto">
+                                    <option value="All">All Age Classes</option>
+                                    <option value="0 - 6 Years">Class: 0 - 6 Years</option>
+                                    <option value="7 - 9 Years">Class: 7 - 9 Years</option>
+                                    <option value="10 - 12 Years">Class: 10 - 12 Years</option>
+                                    <option value="13+ Transferred">13+ Transferred to Youth</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500">
+                            Showing <span id="filtered-count" class="font-bold text-slate-800">0</span> children
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto w-full">
+                        <table id="members-table" class="w-full text-left border-collapse text-sm text-slate-600 whitespace-nowrap">
+                            <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-4 py-3">Child's Name</th>
+                                    <th class="px-4 py-3">Gender / Age</th>
+                                    <th class="px-4 py-3">Class Grouping</th>
+                                    <th class="px-4 py-3">Parent / Guardian</th>
+                                    <th class="px-4 py-3">Parent Contact</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3 text-center no-print">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="members-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. MARK ATTENDANCE TAB -->
+            <section id="tab-attendance" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900">Mark Children Attendance</h2>
+                            <p class="text-slate-500 text-sm">Select date and toggle present/absent for children.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="markAllAttendance(true)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-check-double mr-1"></i> Mark All Present</button>
+                            <button onclick="markAllAttendance(false)" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-xmark mr-1"></i> Mark All Absent</button>
+                            <button onclick="saveAttendanceSession()" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Attendance</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Service Date *</label><input type="date" id="sheetDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Service Type *</label><select id="sheetServiceType" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none bg-white"><option>Sunday Children Service</option><option>Mid-Week Bible Club</option><option>Special Revival Service</option><option>Vacation Bible School</option></select></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Recorded By</label><input type="text" id="sheetRecorder" placeholder="e.g. Teacher Mercy" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div class="bg-emerald-500 text-white p-4 rounded-xl shadow-sm text-center"><p class="text-xs uppercase tracking-wider font-medium opacity-90">Present</p><h4 id="count-present" class="text-2xl font-bold">0</h4></div>
+                    <div class="bg-rose-500 text-white p-4 rounded-xl shadow-sm text-center"><p class="text-xs uppercase tracking-wider font-medium opacity-90">Absent</p><h4 id="count-absent" class="text-2xl font-bold">0</h4></div>
+                    <div class="bg-slate-800 text-white p-4 rounded-xl shadow-sm text-center col-span-2 sm:col-span-1"><p class="text-xs uppercase tracking-wider font-medium opacity-90">Total Active Children</p><h4 id="count-headcount" class="text-2xl font-bold">0</h4></div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="relative w-full sm:w-64"><i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i><input type="text" id="rosterSearch" oninput="renderAttendanceRoster()" placeholder="Search roster..." class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm outline-none"></div>
+                        <div class="flex items-center gap-1 bg-slate-200 p-1 rounded-lg text-xs font-semibold">
+                            <button onclick="setRosterFilter('all')" id="filter-all" class="px-3 py-1 rounded-md bg-white text-slate-800 shadow-sm">All</button>
+                            <button onclick="setRosterFilter('present')" id="filter-present" class="px-3 py-1 rounded-md text-slate-600">Present</button>
+                            <button onclick="setRosterFilter('absent')" id="filter-absent" class="px-3 py-1 rounded-md text-slate-600">Absent</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse text-sm text-slate-600">
+                            <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-6 py-3">Child's Name</th>
+                                    <th class="px-6 py-3">Class Group</th>
+                                    <th class="px-6 py-3">Parent Contact</th>
+                                    <th class="px-6 py-3 text-center">Mark Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. ATTENDANCE HISTORICAL LOGS TAB -->
+            <section id="tab-attendance-logs" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Attendance History</h2>
+                        <p class="text-slate-500 text-sm">Historical records and detailed list of present/absent children.</p>
+                    </div>
+                </div>
+                <div id="logs-container" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse text-sm text-slate-600">
+                            <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-6 py-3">Date</th>
+                                    <th class="px-6 py-3">Service Type</th>
+                                    <th class="px-6 py-3">Present</th>
+                                    <th class="px-6 py-3">Absent</th>
+                                    <th class="px-6 py-3">Recorded By</th>
+                                    <th class="px-6 py-3 text-center no-print">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. VISITORS LOG TAB -->
+            <section id="tab-visitors" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Visiting Children & First Timers</h2>
+                        <p class="text-slate-500 text-sm">Log guests joining the Children's Ministry service.</p>
+                    </div>
+                    <button onclick="toggleForm('visitor-form-container')" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Record Visitor</button>
+                </div>
+
+                <div id="visitor-form-container" class="hidden bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-end mb-3">
+                        <button type="button" onclick="toggleForm('visitor-form-container')" title="Close" class="text-slate-400 hover:text-rose-600 transition p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form onsubmit="handleVisitorSubmit(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div><label class="block text-xs font-semibold mb-1">Child Name *</label><input type="text" id="v_name" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Date Visited *</label><input type="date" id="v_date" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Parent Phone</label><input type="tel" id="v_contact" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Invited By / Source</label><input type="text" id="v_invited" placeholder="e.g. Invited by friend" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-semibold mb-1">Remarks</label><input type="text" id="v_remarks" placeholder="e.g. Visiting grandparents" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                        </div>
+                        <div class="mt-4 flex justify-end"><button type="submit" class="bg-pentecost-blue text-white px-6 py-2 rounded-lg font-semibold text-sm">Save Visitor</button></div>
+                    </form>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse text-sm text-slate-600">
+                        <thead class="bg-slate-100 uppercase text-xs font-bold text-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Visitor Name</th>
+                                <th class="px-6 py-3">Date Visited</th>
+                                <th class="px-6 py-3">Parent Phone</th>
+                                <th class="px-6 py-3">Invited By</th>
+                                <th class="px-6 py-3">Remarks</th>
+                                <th class="px-6 py-3 text-center no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitors-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 6. CHILD DEDICATIONS TAB -->
+            <section id="tab-dedications" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Child Dedication Registry</h2>
+                        <p class="text-slate-500 text-sm">Record infant dedications and print certificates.</p>
+                    </div>
+                    <button onclick="toggleForm('dedication-form-container')" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-baby-carriage"></i> Record Dedication</button>
+                </div>
+
+                <div id="dedication-form-container" class="hidden bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-end mb-3">
+                        <button type="button" onclick="toggleForm('dedication-form-container')" title="Close" class="text-slate-400 hover:text-rose-600 transition p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form onsubmit="handleDedicationSubmit(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div><label class="block text-xs font-semibold mb-1">Child's Name *</label><input type="text" id="d_child" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Dedication Date *</label><input type="date" id="d_date" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Parents' Names *</label><input type="text" id="d_parents" required placeholder="e.g. Mr. & Mrs. Mensah" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Officiating Minister *</label><input type="text" id="d_minister" required placeholder="e.g. Pastor K. Boateng" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                        </div>
+                        <div class="mt-4 flex justify-end"><button type="submit" class="bg-pentecost-blue text-white px-6 py-2 rounded-lg font-semibold text-sm">Save Dedication Record</button></div>
+                    </form>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse text-sm text-slate-600">
+                        <thead class="bg-slate-100 uppercase text-xs font-bold text-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Child Name</th>
+                                <th class="px-6 py-3">Dedication Date</th>
+                                <th class="px-6 py-3">Parents</th>
+                                <th class="px-6 py-3">Officiating Minister</th>
+                                <th class="px-6 py-3 text-center no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dedications-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 7. OFFERING & FINANCES TAB -->
+            <section id="tab-offering" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Children Ministry Offering</h2>
+                        <p class="text-slate-500 text-sm">Log service collections and tithes.</p>
+                    </div>
+                    <button onclick="toggleForm('offering-form-container')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-coins"></i> Log Offering Collection</button>
+                </div>
+
+                <div id="offering-form-container" class="hidden bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-end mb-3">
+                        <button type="button" onclick="toggleForm('offering-form-container')" title="Close" class="text-slate-400 hover:text-rose-600 transition p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form onsubmit="handleOfferingSubmit(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div><label class="block text-xs font-semibold mb-1">Collection Date *</label><input type="date" id="o_date" required class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1">Collection Type *</label>
+                                <select id="o_type" class="w-full border rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                                    <option>Sunday Service Offering</option>
+                                    <option>Children Ministry Fund</option>
+                                    <option>Special Project Support</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-semibold mb-1">Amount (GHS) *</label><input type="number" step="0.01" id="o_amount" required placeholder="0.00" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Recorded By *</label><input type="text" id="o_recorder" required placeholder="e.g. Financial Secretary" class="w-full border rounded-lg px-3 py-2 text-sm outline-none"></div>
+                        </div>
+                        <div class="mt-4 flex justify-end"><button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-semibold text-sm">Save Offering Record</button></div>
+                    </form>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse text-sm text-slate-600">
+                        <thead class="bg-slate-100 uppercase text-xs font-bold text-slate-700">
+                            <tr>
+                                <th class="px-6 py-3">Date</th>
+                                <th class="px-6 py-3">Collection Type</th>
+                                <th class="px-6 py-3">Amount (GHS)</th>
+                                <th class="px-6 py-3">Recorded By</th>
+                                <th class="px-6 py-3 text-center no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="offering-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- FOOTER
+    <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 px-4 py-4 text-center flex-shrink-0">
+        <p class="text-sm font-medium">Designed by <span class="text-pentecost-gold font-semibold">Domestake Hub Ghana</span></p>
+    </footer> -->
+
+    <!-- LOG DETAILS MODAL -->
+    <div id="logDetailModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-pentecost-blue text-white px-6 py-4 flex justify-between items-center">
+                <div>
+                    <h3 id="modalLogTitle" class="font-bold text-lg">Attendance Details</h3>
+                    <p id="modalLogSub" class="text-xs text-blue-200">Date & Service</p>
+                </div>
+                <button onclick="closeLogModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 flex-1">
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200 text-center text-xs">
+                    <div><span class="text-slate-500">Present Children:</span> <strong id="modalPresentCount" class="text-emerald-600 text-sm">0</strong></div>
+                    <div><span class="text-slate-500">Absent Children:</span> <strong id="modalAbsentCount" class="text-rose-600 text-sm">0</strong></div>
+                </div>
+                <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Individual Attendance Roster Snapshot</h4>
+                <div class="border border-slate-200 rounded-lg overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold">
+                            <tr><th class="p-2.5">Child Name</th><th class="p-2.5">Class Group</th><th class="p-2.5 text-center">Status</th></tr>
+                        </thead>
+                        <tbody id="modalLogTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-slate-100 px-6 py-3 flex justify-end">
+                <button onclick="closeLogModal()" class="bg-slate-700 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- DATABASE INIT ---
+        const DB_KEY = 'pentecost_children_db_v3_5';
+        let db = {
+            members: [],
+            attendanceLogs: [],
+            visitors: [],
+            dedications: [],
+            offerings: []
+        };
+
+        let currentRole = 'MinistryLeader';
+        let sidebarPinned = true;
+        let attendanceSheet = {};
+        let rosterFilter = 'all';
+        let attendanceChart = null;
+        let offeringChart = null;
+
+        // --- AGE CALCULATION & CLASS GROUPING LOGIC ---
+        function calculateAge(dobString) {
+            if (!dobString) return null;
+            const dob = new Date(dobString);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            return age >= 0 ? age : 0;
+        }
+
+        function getClassGroupAndStatus(dobString) {
+            const age = calculateAge(dobString);
+            if (age === null) return { group: 'Unassigned', status: 'Active', badgeClass: 'bg-slate-100 text-slate-600' };
+            
+            if (age <= 6) {
+                return { group: '0 - 6 Years', status: 'Active', badgeClass: 'bg-sky-100 text-sky-800 border-sky-200' };
+            } else if (age <= 9) {
+                return { group: '7 - 9 Years', status: 'Active', badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+            } else if (age <= 12) {
+                return { group: '10 - 12 Years', status: 'Active', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200' };
+            } else {
+                // Exceeds 12 Years - Flag for Youth Transfer
+                return { group: '13+ Transferred', status: 'Transferred to Youth', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200' };
+            }
+        }
+
+        function previewAgeGroup() {
+            const dob = document.getElementById('m_dob').value;
+            const textEl = document.getElementById('preview-class-text');
+            const badgeEl = document.getElementById('preview-class-badge');
+            
+            if (!dob) {
+                textEl.innerText = "Select Date of Birth above";
+                badgeEl.innerText = "N/A";
+                badgeEl.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-600";
+                return;
+            }
+
+            const age = calculateAge(dob);
+            const classInfo = getClassGroupAndStatus(dob);
+            
+            textEl.innerText = `Age: ${age} Yrs | Assigned to ${classInfo.group}`;
+            badgeEl.innerText = classInfo.group;
+            badgeEl.className = `px-2.5 py-1 rounded-full text-xs font-bold border ${classInfo.badgeClass}`;
+
+            if (age > 12) {
+                document.getElementById('m_status').value = 'Transferred to Youth';
+            } else {
+                document.getElementById('m_status').value = 'Active';
+            }
+        }
+
+        // --- APP INITIALIZATION ---
+       window.addEventListener('DOMContentLoaded', () => {
+            loadLocalDatabase();
+            document.getElementById('sheetDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('m_dob').value = '';
+            
+            // Ensure UI starts in Ministry Leader mode
+            document.getElementById('roleToggle').value = 'MinistryLeader';
+            currentRole = 'MinistryLeader';
+            
+            // Seed sample data if database is empty
+            if (db.members.length === 0) {
+                seedInitialData();
+            }
+
+            renderAllSections();
+            initCharts();
+            applyRolePermissions(); // Apply the role restrictions immediately
+        });
+        
+
+        function loadLocalDatabase() {
+            const data = localStorage.getItem(DB_KEY);
+            if (data) {
+                try { db = JSON.parse(data); } catch(e) { console.error('Corrupted DB'); }
+            }
+        }
+
+        function saveLocalDatabase() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            renderAllSections();
+            updateCharts();
+        }
+
+        function seedInitialData() {
+            db.members = [
+                { id: '1', name: 'Kwaku Mensah', gender: 'Male', dob: '2020-05-12', parent: 'Elder Mensah', contact: '0241112233', address: 'Estate, Koforidua', status: 'Active' },
+                { id: '2', name: 'Abena Osei', gender: 'Female', dob: '2018-08-20', parent: 'Deaconess Osei', contact: '0242223344', address: 'Market Area', status: 'Active' },
+                { id: '3', name: 'Emmanuel Frimpong', gender: 'Male', dob: '2015-02-10', parent: 'Bro Frimpong', contact: '0243334455', address: 'Mile 5', status: 'Active' },
+                { id: '4', name: 'Priscilla Appiah', gender: 'Female', dob: '2012-11-04', parent: 'Sis Appiah', contact: '0244445566', address: 'Low Cost', status: 'Transferred to Youth' }
+            ];
+            db.offerings = [
+                { id: '101', date: '2026-09-06', type: 'Sunday Service Offering', amount: 350.00, recorder: 'Teacher Mercy' },
+                { id: '102', date: '2026-09-13', type: 'Sunday Service Offering', amount: 420.50, recorder: 'Teacher Mercy' }
+            ];
+            saveLocalDatabase();
+        }
+
+        // --- RENDER SECTIONS ---
+        function renderAllSections() {
+            renderDashboardStats();
+            renderMembers();
+            renderAttendanceRoster();
+            renderAttendanceLogs();
+            renderVisitors();
+            renderDedications();
+            renderOfferings();
+        }
+
+        function renderDashboardStats() {
+            document.getElementById('dash-total-members').innerText = db.members.length;
+            
+            let g06 = 0, g79 = 0, g1012 = 0, g13plus = 0;
+            db.members.forEach(m => {
+                const age = calculateAge(m.dob);
+                if (age !== null) {
+                    if (age <= 6) g06++;
+                    else if (age <= 9) g79++;
+                    else if (age <= 12) g1012++;
+                    else g13plus++;
+                }
+            });
+
+            document.getElementById('dash-group-06').innerText = g06;
+            document.getElementById('dash-group-79').innerText = g79;
+            document.getElementById('dash-group-1012').innerText = g1012;
+            document.getElementById('dash-group-13plus').innerText = g13plus;
+        }
+
+        // --- RENDER MEMBERS TABLE WITH DYNAMIC AGE & CLASS FILTER ---
+        function renderMembers() {
+            const tbody = document.getElementById('members-tbody');
+            const search = document.getElementById('memberSearch').value.toLowerCase();
+            const classFilter = document.getElementById('classFilter').value;
+            tbody.innerHTML = '';
+
+            const filtered = db.members.filter(m => {
+                const matchesSearch = m.name.toLowerCase().includes(search) || m.parent.toLowerCase().includes(search) || m.contact.includes(search);
+                const classInfo = getClassGroupAndStatus(m.dob);
+                
+                let matchesClass = true;
+                if (classFilter !== 'All') {
+                    if (classFilter === '13+ Transferred') {
+                        matchesClass = classInfo.group === '13+ Transferred' || m.status === 'Transferred to Youth';
+                    } else {
+                        matchesClass = classInfo.group === classFilter;
+                    }
+                }
+                return matchesSearch && matchesClass;
+            });
+
+            document.getElementById('filtered-count').innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No children records match selected filter.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(m => {
+                const age = calculateAge(m.dob);
+                const classInfo = getClassGroupAndStatus(m.dob);
+                const isOverAge = age > 12;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-semibold text-slate-800">${m.name}</td>
+                    <td class="px-4 py-3">${m.gender} / <span class="font-bold text-slate-700">${age !== null ? age + ' Yrs' : 'N/A'}</span></td>
+                    <td class="px-4 py-3">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${classInfo.badgeClass}">
+                            ${classInfo.group}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">${m.parent}</td>
+                    <td class="px-4 py-3">${m.contact}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold ${isOverAge || m.status === 'Transferred to Youth' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}">
+                            ${isOverAge ? 'Transferred to Youth' : m.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-center no-print">
+                        <button onclick="editMember('${m.id}')" title="Edit Member" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${currentRole === 'Admin' ? `<button onclick="deleteMember('${m.id}')" title="Delete Member" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleMemberSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('m_id').value || Date.now().toString();
+            const dob = document.getElementById('m_dob').value;
+            const age = calculateAge(dob);
+            
+            let status = document.getElementById('m_status').value;
+            if (age > 12) status = 'Transferred to Youth';
+
+            const memberData = {
+                id: id,
+                name: document.getElementById('m_name').value.trim(),
+                gender: document.getElementById('m_gender').value,
+                dob: dob,
+                parent: document.getElementById('m_parent').value.trim(),
+                contact: document.getElementById('m_contact').value.trim(),
+                address: document.getElementById('m_address').value.trim(),
+                status: status
+            };
+
+            const existingIdx = db.members.findIndex(m => m.id === id);
+            if (existingIdx > -1) {
+                db.members[existingIdx] = memberData;
+            } else {
+                db.members.push(memberData);
+            }
+
+            saveLocalDatabase();
+            toggleForm('member-form-container');
+            document.getElementById('form-member').reset();
+            document.getElementById('m_id').value = '';
+            document.getElementById('preview-class-text').innerText = "Select Date of Birth above";
+            document.getElementById('preview-class-badge').innerText = "N/A";
+            document.getElementById('preview-class-badge').className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-600";
+        }
+
+        function editMember(id) {
+            const m = db.members.find(x => x.id === id);
+            if (!m) return;
+            document.getElementById('m_id').value = m.id;
+            document.getElementById('m_name').value = m.name;
+            document.getElementById('m_gender').value = m.gender;
+            document.getElementById('m_dob').value = m.dob;
+            document.getElementById('m_parent').value = m.parent;
+            document.getElementById('m_contact').value = m.contact;
+            document.getElementById('m_address').value = m.address;
+            document.getElementById('m_status').value = m.status;
+            
+            previewAgeGroup();
+            document.getElementById('member-form-container').classList.remove('hidden');
+        }
+
+        function deleteMember(id) {
+            // Block non-admins from executing the deletion
+            if (currentRole !== 'Admin') {
+                alert("Access Denied: Only Administrators can delete records.");
+                return;
+            }
+            
+            if (confirm("Are you sure you want to delete this child's record?")) {
+                db.members = db.members.filter(m => m.id !== id);
+                saveLocalDatabase();
+            }
+        }
+
+        function deleteAttendanceLog(id) {
+            if (currentRole !== 'Admin') return;
+            if (confirm("Delete this attendance log? This action cannot be undone.")) {
+                db.attendanceLogs = db.attendanceLogs.filter(l => l.id !== id);
+                saveLocalDatabase();
+            }
+        }
+
+        function deleteVisitor(index) {
+            if (currentRole !== 'Admin') return;
+            if (confirm("Delete this visitor record?")) {
+                db.visitors.splice(index, 1);
+                saveLocalDatabase();
+            }
+        }
+
+        function deleteDedication(index) {
+            if (currentRole !== 'Admin') return;
+            if (confirm("Delete this dedication record?")) {
+                db.dedications.splice(index, 1);
+                saveLocalDatabase();
+            }
+        }
+
+        function deleteOffering(index) {
+            if (currentRole !== 'Admin') return;
+            if (confirm("Delete this financial record?")) {
+                db.offerings.splice(index, 1);
+                saveLocalDatabase();
+            }
+        }
+
+        // --- ATTENDANCE ROSTER LOGIC ---
+        function renderAttendanceRoster() {
+            const tbody = document.getElementById('roster-tbody');
+            const search = document.getElementById('rosterSearch').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            // Filter active children under 13 for weekly attendance
+            const activeChildren = db.members.filter(m => m.status === 'Active' && (calculateAge(m.dob) === null || calculateAge(m.dob) <= 12));
+
+            activeChildren.forEach(m => {
+                if (!(m.id in attendanceSheet)) {
+                    attendanceSheet[m.id] = true; // Default Present
+                }
+            });
+
+            let presentCount = 0;
+            let absentCount = 0;
+
+            const filtered = activeChildren.filter(m => {
+                const matchesSearch = m.name.toLowerCase().includes(search) || m.parent.toLowerCase().includes(search);
+                const isPresent = attendanceSheet[m.id];
+                if (rosterFilter === 'present' && !isPresent) return false;
+                if (rosterFilter === 'absent' && isPresent) return false;
+                return matchesSearch;
+            });
+
+            activeChildren.forEach(m => {
+                if (attendanceSheet[m.id]) presentCount++;
+                else absentCount++;
+            });
+
+            document.getElementById('count-present').innerText = presentCount;
+            document.getElementById('count-absent').innerText = absentCount;
+            document.getElementById('count-headcount').innerText = activeChildren.length;
+
+            filtered.forEach(m => {
+                const isPresent = attendanceSheet[m.id];
+                const classInfo = getClassGroupAndStatus(m.dob);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-6 py-3 font-semibold text-slate-800">${m.name}</td>
+                    <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-xs font-bold border ${classInfo.badgeClass}">${classInfo.group}</span></td>
+                    <td class="px-6 py-3">${m.contact} (${m.parent})</td>
+                    <td class="px-6 py-3 text-center">
+                        <button onclick="toggleAttendanceStatus('${m.id}')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition ${isPresent ? 'bg-emerald-500 text-white shadow-sm' : 'bg-rose-500 text-white shadow-sm'}">
+                            ${isPresent ? '<i class="fa-solid fa-check mr-1"></i> PRESENT' : '<i class="fa-solid fa-xmark mr-1"></i> ABSENT'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleAttendanceStatus(id) {
+            attendanceSheet[id] = !attendanceSheet[id];
+            renderAttendanceRoster();
+        }
+
+        function markAllAttendance(status) {
+            db.members.forEach(m => { attendanceSheet[m.id] = status; });
+            renderAttendanceRoster();
+        }
+
+        function setRosterFilter(filter) {
+            rosterFilter = filter;
+            ['all', 'present', 'absent'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = "px-3 py-1 rounded-md bg-white text-slate-800 shadow-sm font-bold";
+                } else {
+                    btn.className = "px-3 py-1 rounded-md text-slate-600 font-normal";
+                }
+            });
+            renderAttendanceRoster();
+        }
+
+        function saveAttendanceSession() {
+            const date = document.getElementById('sheetDate').value;
+            const serviceType = document.getElementById('sheetServiceType').value;
+            const recorder = document.getElementById('sheetRecorder').value || 'Secretary';
+
+            if (!date) { alert("Please select a valid date."); return; }
+
+            const activeChildren = db.members.filter(m => m.status === 'Active' && (calculateAge(m.dob) === null || calculateAge(m.dob) <= 12));
+            const snapshot = activeChildren.map(m => ({
+                id: m.id,
+                name: m.name,
+                classGroup: getClassGroupAndStatus(m.dob).group,
+                present: !!attendanceSheet[m.id]
+            }));
+
+            const presentCount = snapshot.filter(s => s.present).length;
+            const absentCount = snapshot.filter(s => !s.present).length;
+
+            const newLog = {
+                id: Date.now().toString(),
+                date: date,
+                serviceType: serviceType,
+                recorder: recorder,
+                presentCount: presentCount,
+                absentCount: absentCount,
+                snapshot: snapshot
+            };
+
+            db.attendanceLogs.unshift(newLog);
+            saveLocalDatabase();
+            alert("Attendance session saved successfully!");
+            switchTab('attendance-logs');
+        }
+
+        // --- HISTORICAL LOGS ---
+        function renderAttendanceLogs() {
+            const tbody = document.getElementById('logs-tbody');
+            tbody.innerHTML = '';
+
+            if (db.attendanceLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No attendance history logged yet.</td></tr>`;
+                return;
+            }
+
+            db.attendanceLogs.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-6 py-3 font-semibold text-slate-800">${log.date}</td>
+                    <td class="px-6 py-3">${log.serviceType}</td>
+                    <td class="px-6 py-3 text-emerald-600 font-bold">${log.presentCount}</td>
+                    <td class="px-6 py-3 text-rose-600 font-bold">${log.absentCount}</td>
+                    <td class="px-6 py-3">${log.recorder}</td>
+                    <td class="px-6 py-3 text-center no-print">
+                        <button onclick="viewLogDetails('${log.id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1 rounded text-xs font-semibold transition"><i class="fa-solid fa-eye mr-1"></i> View Details</button>
+                        ${currentRole === 'Admin' ? `<button onclick="deleteAttendanceLog('${log.id}')" class="bg-rose-50 text-rose-700 hover:bg-rose-100 px-3 py-1 rounded text-xs font-semibold transition ml-1"><i class="fa-solid fa-trash mr-1"></i> Delete</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function viewLogDetails(id) {
+            const log = db.attendanceLogs.find(l => l.id === id);
+            if (!log) return;
+
+            document.getElementById('modalLogTitle').innerText = `${log.serviceType}`;
+            document.getElementById('modalLogSub').innerText = `Date: ${log.date} | Recorded By: ${log.recorder}`;
+            document.getElementById('modalPresentCount').innerText = log.presentCount;
+            document.getElementById('modalAbsentCount').innerText = log.absentCount;
+
+            const tbody = document.getElementById('modalLogTableBody');
+            tbody.innerHTML = '';
+
+            log.snapshot.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5 font-medium text-slate-800">${item.name}</td>
+                    <td class="p-2.5 text-slate-500">${item.classGroup}</td>
+                    <td class="p-2.5 text-center">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.present ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                            ${item.present ? 'PRESENT' : 'ABSENT'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('logDetailModal').classList.remove('hidden');
+        }
+
+        function closeLogModal() {
+            document.getElementById('logDetailModal').classList.add('hidden');
+        }
+
+        // --- VISITORS, DEDICATIONS, OFFERING LOGIC ---
+        function renderVisitors() {
+            const tbody = document.getElementById('visitors-tbody');
+            tbody.innerHTML = db.visitors.length ? '' : `<tr><td colspan="6" class="text-center py-6 text-slate-400">No visitors logged.</td></tr>`;
+            db.visitors.forEach((v, index) => {
+                tbody.innerHTML += `<tr>
+                    <td class="px-6 py-3 font-semibold">${v.name}</td>
+                    <td class="px-6 py-3">${v.date}</td>
+                    <td class="px-6 py-3">${v.contact}</td>
+                    <td class="px-6 py-3">${v.invited}</td>
+                    <td class="px-6 py-3">${v.remarks}</td>
+                    ${currentRole === 'Admin' ? `<td class="px-6 py-3 text-center no-print"><button onclick="deleteVisitor(${index})" class="text-rose-600 hover:text-rose-800" title="Delete Visitor"><i class="fa-solid fa-trash"></i></button></td>` : ''}
+                </tr>`;
+            });
+        }
+
+        function handleVisitorSubmit(e) {
+            e.preventDefault();
+            db.visitors.unshift({
+                id: Date.now().toString(),
+                name: document.getElementById('v_name').value,
+                date: document.getElementById('v_date').value,
+                contact: document.getElementById('v_contact').value,
+                invited: document.getElementById('v_invited').value,
+                remarks: document.getElementById('v_remarks').value
+            });
+            saveLocalDatabase();
+            toggleForm('visitor-form-container');
+        }
+
+        function renderDedications() {
+            const tbody = document.getElementById('dedications-tbody');
+            tbody.innerHTML = db.dedications.length ? '' : `<tr><td colspan="5" class="text-center py-6 text-slate-400">No dedications logged.</td></tr>`;
+            db.dedications.forEach((d, index) => {
+                tbody.innerHTML += `<tr>
+                    <td class="px-6 py-3 font-semibold">${d.child}</td>
+                    <td class="px-6 py-3">${d.date}</td>
+                    <td class="px-6 py-3">${d.parents}</td>
+                    <td class="px-6 py-3">${d.minister}</td>
+                    ${currentRole === 'Admin' ? `<td class="px-6 py-3 text-center no-print"><button onclick="deleteDedication(${index})" class="text-rose-600 hover:text-rose-800" title="Delete Dedication"><i class="fa-solid fa-trash"></i></button></td>` : ''}
+                </tr>`;
+            });
+        }
+
+        function handleDedicationSubmit(e) {
+            e.preventDefault();
+            db.dedications.unshift({
+                id: Date.now().toString(),
+                child: document.getElementById('d_child').value,
+                date: document.getElementById('d_date').value,
+                parents: document.getElementById('d_parents').value,
+                minister: document.getElementById('d_minister').value
+            });
+            saveLocalDatabase();
+            toggleForm('dedication-form-container');
+        }
+
+        function renderOfferings() {
+            const tbody = document.getElementById('offering-tbody');
+            tbody.innerHTML = db.offerings.length ? '' : `<tr><td colspan="5" class="text-center py-6 text-slate-400">No offerings logged.</td></tr>`;
+            db.offerings.forEach((o, index) => {
+                tbody.innerHTML += `<tr>
+                    <td class="px-6 py-3">${o.date}</td>
+                    <td class="px-6 py-3 font-medium">${o.type}</td>
+                    <td class="px-6 py-3 font-bold text-emerald-600">GHS ${parseFloat(o.amount).toFixed(2)}</td>
+                    <td class="px-6 py-3">${o.recorder}</td>
+                    ${currentRole === 'Admin' ? `<td class="px-6 py-3 text-center no-print"><button onclick="deleteOffering(${index})" class="text-rose-600 hover:text-rose-800" title="Delete Offering"><i class="fa-solid fa-trash"></i></button></td>` : ''}
+                </tr>`;
+            });
+        }
+
+        function handleOfferingSubmit(e) {
+            e.preventDefault();
+            db.offerings.unshift({
+                id: Date.now().toString(),
+                date: document.getElementById('o_date').value,
+                type: document.getElementById('o_type').value,
+                amount: parseFloat(document.getElementById('o_amount').value),
+                recorder: document.getElementById('o_recorder').value
+            });
+            saveLocalDatabase();
+            toggleForm('offering-form-container');
+        }
+
+        // --- CHARTS INITIALIZATION & UPDATES ---
+        function initCharts() {
+            const ctxA = document.getElementById('chartAttendance').getContext('2d');
+            attendanceChart = new Chart(ctxA, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Present Children', data: [], borderColor: '#0033a0', backgroundColor: 'rgba(0, 51, 160, 0.1)', fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const ctxO = document.getElementById('chartOffering').getContext('2d');
+            offeringChart = new Chart(ctxO, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Offering (GHS)', data: [], backgroundColor: '#ffb81c' }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            updateCharts();
+        }
+
+        function updateCharts() {
+            if (!attendanceChart || !offeringChart) return;
+
+            const recentLogs = [...db.attendanceLogs].reverse().slice(-7);
+            attendanceChart.data.labels = recentLogs.map(l => l.date);
+            attendanceChart.data.datasets[0].data = recentLogs.map(l => l.presentCount);
+            attendanceChart.update();
+
+            const recentOfferings = [...db.offerings].reverse().slice(-7);
+            offeringChart.data.labels = recentOfferings.map(o => o.date);
+            offeringChart.data.datasets[0].data = recentOfferings.map(o => o.amount);
+            offeringChart.update();
+        }
+
+        // --- FORM TOGGLE ---
+        function toggleForm(formId) {
+            const form = document.getElementById(formId);
+            if (!form) {
+                console.error(`Form container not found: ${formId}`);
+                return;
+            }
+            form.classList.toggle('hidden');
+        }
+
+        // --- NAVIGATION, UI TOGGLES & EXPORTS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white";
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) activeBtn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition bg-slate-800 text-white font-bold";
+
+            closeSidebarMobile();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+
+            if (window.innerWidth < 1024) {
+                sidebar.classList.toggle('-translate-x-full');
+                backdrop.classList.toggle('hidden');
+                return;
+            }
+
+            // Wide screen: hide/show the sidebar and let the main content expand naturally.
+            sidebar.classList.toggle('lg:w-0');
+            sidebar.classList.toggle('lg:w-64');
+            sidebar.classList.toggle('lg:overflow-hidden');
+        }
+
+        function togglePinSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('pinIcon');
+            sidebarPinned = !sidebarPinned;
+
+            if (sidebarPinned) {
+                sidebar.classList.remove('lg:w-0', 'lg:overflow-hidden');
+                sidebar.classList.add('lg:w-64');
+                icon.className = 'fa-solid fa-thumbtack';
+            } else {
+                sidebar.classList.add('lg:w-0', 'lg:overflow-hidden');
+                sidebar.classList.remove('lg:w-64');
+                icon.className = 'fa-solid fa-thumbtack-slash';
+            }
+        }
+
+        function closeSidebarMobile() {
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('sidebarBackdrop').classList.add('hidden');
+            }
+        }
+
+        function handleWindowResize() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+
+            if (window.innerWidth >= 1024) {
+                backdrop.classList.add('hidden');
+                sidebar.classList.remove('-translate-x-full');
+                if (sidebarPinned) {
+                    sidebar.classList.remove('lg:w-0', 'lg:overflow-hidden');
+                    sidebar.classList.add('lg:w-64');
+                }
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        window.addEventListener('resize', handleWindowResize);
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white";
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition bg-slate-800 text-white font-bold";
+            }
+
+            closeSidebarMobile();
+        }
+
+        function exportToExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Pentecost_Children_DB_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.click();
+        }
+
+        function importBackup(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    db = JSON.parse(e.target.result);
+                    saveLocalDatabase();
+                    alert("Database backup restored successfully!");
+                } catch(err) { alert("Invalid backup file format."); }
+            };
+
+            reader.readAsText(event.target.files[0]);
+        }
+
+        function changeRole() {
+            const roleSelect = document.getElementById('roleToggle');
+
+            if (roleSelect.value === 'Admin') {
+                const password = prompt('Please enter the Administrator password:');
+
+                if (password === 'john316') {
+                    currentRole = 'Admin';
+                    alert('Authentication successful. Switched to Administrator role.');
+                } else {
+                    alert('Incorrect password. Reverting to Ministry Leader.');
+                    roleSelect.value = 'MinistryLeader';
+                    currentRole = 'MinistryLeader';
+                }
+            } else {
+                currentRole = 'MinistryLeader';
+            }
+
+            applyRolePermissions();
+        }
+
+        function applyRolePermissions() {
+            // Ministry Leader: can edit members, but cannot delete.
+            // Administrator: can edit and delete members and delete logs/financial records.
+            renderMembers();
+            renderAttendanceLogs();
+            renderVisitors();
+            renderDedications();
+            renderOfferings();
+        }
+
+
+        
+    </script>
+</body>
+</html>
