@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ebenezer-children-portal",
-  "main": "src/worker.js",
+  "main": "worker.js",
   "compatibility_date": "2026-01-01",
   "assets": {
     "directory": "./"
