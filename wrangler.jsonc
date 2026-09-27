@@ -1,0 +1,10 @@
+{
+  "name": "ebenezer-children-portal",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "attendance-db",
+      "database_id": "6a1b80b7-6d32-4e1f-a9d0-fb949e2cc687"
+    }
+  ]
+}
