@@ -1008,6 +1008,17 @@
 
             db.attendanceLogs.unshift(newLog);
             saveLocalDatabase();
+
+            // --- NEW: Save to Cloudflare D1 ---
+            fetch('/api/api', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newLog)
+            }).then(res => {
+              if(res.ok) console.log("Saved to Cloudflare D1");
+              else console.error("Cloud save failed");
+            });
+
             alert("Attendance session saved successfully!");
             switchTab('attendance-logs');
         }
