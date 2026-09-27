@@ -1,33 +1,41 @@
-export async function onRequestPost(context) {
-  try {
-    const { request, env } = context;
-    const log = await request.json();
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
 
-    await env.DB.prepare(
-      `INSERT INTO attendancedb (id, date, serviceType, recorder, presentCount, absentCount, snapshot) 
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
-    ).bind(
-      log.id,
-      log.date,
-      log.serviceType,
-      log.recorder,
-      log.presentCount,
-      log.absentCount,
-      JSON.stringify(log.snapshot)
-    ).run();
+    // Route: GET /api/members
+    if (url.pathname === "/api/members" && request.method === "GET") {
+      try {
+        const { results } = await env.DB.prepare("SELECT * FROM members").all();
+        return Response.json(results);
+      } catch (err) {
+        return Response.json({ error: err.message }, { status: 500 });
+      }
+    }
 
-    return Response.json({ success: true });
-  } catch (err) {
-    return Response.json({ success: false, error: err.message }, { status: 500 });
+    // Route: POST /api/members (Add new member)
+    if (url.pathname === "/api/members" && request.method === "POST") {
+      try {
+        const body = await request.json();
+        await env.DB.prepare(
+          "INSERT INTO members (id, name, gender, dob, parent, contact, address, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        ).bind(
+          body.id || crypto.randomUUID(),
+          body.name,
+          body.gender,
+          body.dob,
+          body.parent,
+          body.contact,
+          body.address,
+          body.status || 'Active'
+        ).run();
+
+        return Response.json({ success: true });
+      } catch (err) {
+        return Response.json({ error: err.message }, { status: 500 });
+      }
+    }
+
+    // Pass through to static assets (index.html, CSS, client JS)
+    return env.ASSETS.fetch(request);
   }
-}
-
-export async function onRequestGet(context) {
-  const { env } = context;
-  try {
-    const { results } = await env.DB.prepare("SELECT * FROM attendancedb ORDER BY date DESC").all();
-    return Response.json(results);
-  } catch (err) {
-    return Response.json({ message: "API is working", db_connected: !!env.DB, error: err.message });
-  }
-}
+};
