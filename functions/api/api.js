@@ -1,12 +1,20 @@
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
-    const body = await request.json();
+    const log = await request.json();
 
-    // CHANGE 'users' and 'name, email' to your real table/columns
     await env.DB.prepare(
-      "INSERT INTO users (name, email) VALUES (?1, ?2)"
-    ).bind(body.name, body.email).run();
+      `INSERT INTO attendancedb (id, date, serviceType, recorder, presentCount, absentCount, snapshot) 
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+    ).bind(
+      log.id,
+      log.date,
+      log.serviceType,
+      log.recorder,
+      log.presentCount,
+      log.absentCount,
+      JSON.stringify(log.snapshot)
+    ).run();
 
     return Response.json({ success: true });
   } catch (err) {
@@ -14,10 +22,12 @@ export async function onRequestPost(context) {
   }
 }
 
-// This lets you test if DB is connected: visit /api/api
 export async function onRequestGet(context) {
-  return Response.json({ 
-    message: "API is working", 
-    db_connected: !!context.env.DB 
-  });
+  const { env } = context;
+  try {
+    const { results } = await env.DB.prepare("SELECT * FROM attendancedb ORDER BY date DESC").all();
+    return Response.json(results);
+  } catch (err) {
+    return Response.json({ message: "API is working", db_connected: !!env.DB, error: err.message });
+  }
 }
