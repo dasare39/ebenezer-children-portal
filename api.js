@@ -1,23 +1,33 @@
+const COLLECTIONS = ['members', 'attendanceLogs', 'visitors', 'dedications', 'offerings'];
+
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === '/api/members' && request.method === 'GET') {
+    if (url.pathname === '/api/data') {
       try {
-        const { results } = await env.DB.prepare("SELECT * FROM members").all();
-        return Response.json(results);
-      } catch (err) {
-        return Response.json({ error: err.message }, { status: 500 });
-      }
-    }
+        if (request.method === 'GET') {
+          const { results } = await env.DB.prepare('SELECT name, value FROM app_data').all();
+          const data = {};
+          for (const row of results) data[row.name] = JSON.parse(row.value);
+          return Response.json(data);
+        }
 
-    if (url.pathname === '/api/attendance' && request.method === 'POST') {
-      try {
-        const log = await request.json();
-        await env.DB.prepare(
-          "INSERT INTO attendance_logs (id, date, serviceType, recorder, presentCount, absentCount, snapshot) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        ).bind(log.id, log.date, log.serviceType, log.recorder, log.presentCount, log.absentCount, JSON.stringify(log.snapshot)).run();
-        return Response.json({ ok: true });
+        if (request.method === 'POST') {
+          const body = await request.json();
+          const statements = [];
+          for (const name of COLLECTIONS) {
+            if (Array.isArray(body[name])) {
+              statements.push(
+                env.DB.prepare(
+                  'INSERT INTO app_data (name, value) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET value = excluded.value'
+                ).bind(name, JSON.stringify(body[name]))
+              );
+            }
+          }
+          if (statements.length) await env.DB.batch(statements);
+          return Response.json({ ok: true });
+        }
       } catch (err) {
         return Response.json({ error: err.message }, { status: 500 });
       }
