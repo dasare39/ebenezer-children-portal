@@ -63,7 +63,7 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
     <!-- TOP NAVIGATION HEADER -->
-    <header class="bg-pentecost-blue text-white shadow-md sticky top-0 z-50 no-print flex-shrink-0"></header>
+       <header class="bg-pentecost-blue text-white shadow-md sticky top-0 z-50 no-print flex-shrink-0">
         <div class="w-full px-4 sm:px-6 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <button id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle Menu" class="p-2 rounded-lg hover:bg-white/10 text-white focus:outline-none transition flex items-center justify-center">
@@ -98,7 +98,7 @@
         <div id="sidebarBackdrop" onclick="closeSidebarMobile()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-20 hidden lg:hidden transition-opacity"></div>
 
         <!-- COLLAPSIBLE SIDEBAR -->
-        <aside id="sidebar" class="sidebar-transition fixed lg:static top-0 bottom-0 left-0 z-30 bg-slate-900 text-slate-300 w-64 flex flex-col shadow-xl lg:shadow-none -translate-x-full lg:translate-x-0 no-print flex-shrink-0 pt-16 lg:pt-0"></aside>
+            <aside id="sidebar" class="sidebar-transition fixed lg:static top-0 bottom-0 left-0 z-30 bg-slate-900 text-slate-300 w-64 flex flex-col shadow-xl lg:shadow-none -translate-x-full lg:translate-x-0 no-print flex-shrink-0 pt-16 lg:pt-0">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between">
                 <span class="text-xs font-bold tracking-wider uppercase text-slate-400">Children Ministry</span>
                 <button id="pinSidebarBtn" onclick="togglePinSidebar()" title="Pin Sidebar" class="text-slate-400 hover:text-pentecost-gold p-1 rounded transition text-sm">
