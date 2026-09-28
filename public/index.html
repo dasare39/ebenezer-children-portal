@@ -1024,7 +1024,7 @@
             saveLocalDatabase();
 
             // --- NEW: Save to Cloudflare D1 ---
-            fetch('/api/api', {
+            fetch('/api/attendance', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(newLog)
