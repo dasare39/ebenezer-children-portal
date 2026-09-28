@@ -1,16 +1,38 @@
-{
-  "name": "ebenezer-children-portal",
-  "main": "api.js",
-  "compatibility_date": "2026-09-27",
-  "assets": {
-    "directory": "./public",
-    "binding": "ASSETS"
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "attendance-db",
-      "database_id": "6a1b80b7-6d32-4e1f-a9d0-fb949e2cc687"
+const COLLECTIONS = ['members', 'attendanceLogs', 'visitors', 'dedications', 'offerings'];
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    if (url.pathname === '/api/data') {
+      try {
+        if (request.method === 'GET') {
+          const { results } = await env.DB.prepare('SELECT name, value FROM app_data').all();
+          const data = {};
+          for (const row of results) data[row.name] = JSON.parse(row.value);
+          return Response.json(data);
+        }
+
+        if (request.method === 'POST') {
+          const body = await request.json();
+          const statements = [];
+          for (const name of COLLECTIONS) {
+            if (Array.isArray(body[name])) {
+              statements.push(
+                env.DB.prepare(
+                  'INSERT INTO app_data (name, value) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET value = excluded.value'
+                ).bind(name, JSON.stringify(body[name]))
+              );
+            }
+          }
+          if (statements.length) await env.DB.batch(statements);
+          return Response.json({ ok: true });
+        }
+      } catch (err) {
+        return Response.json({ error: err.message }, { status: 500 });
+      }
     }
-  ]
-}
+
+    return env.ASSETS.fetch(request);
+  }
+};
