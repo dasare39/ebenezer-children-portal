@@ -667,7 +667,7 @@
 
         // --- APP INITIALIZATION ---
        window.addEventListener('DOMContentLoaded', async () => {
-    loadLocalDatabase();
+    await loadLocalDatabase();
     document.getElementById('sheetDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('m_dob').value = '';
     
@@ -689,18 +689,72 @@
 });
         
 
-        function loadLocalDatabase() {
-            const data = localStorage.getItem(DB_KEY);
-            if (data) {
-                try { db = JSON.parse(data); } catch(e) { console.error('Corrupted DB'); }
-            }
-        }
+let dbReady = false;
+let lastSynced = {};
 
-        function saveLocalDatabase() {
-            localStorage.setItem(DB_KEY, JSON.stringify(db));
-            renderAllSections();
-            updateCharts();
+function markSynced(keys) {
+    keys.forEach(k => { lastSynced[k] = JSON.stringify(db[k]); });
+}
+
+async function loadLocalDatabase() {
+    try {
+        const res = await fetch('/api/data');
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        const server = await res.json();
+        if (Object.keys(server).length > 0) {
+            db = {
+                members: server.members || [],
+                attendanceLogs: server.attendanceLogs || [],
+                visitors: server.visitors || [],
+                dedications: server.dedications || [],
+                offerings: server.offerings || []
+            };
+            markSynced(Object.keys(db));
+        } else {
+            // Database is empty: move the data saved in this browser into it
+            const local = localStorage.getItem(DB_KEY);
+            if (local) {
+                try {
+                    db = Object.assign(
+                        { members: [], attendanceLogs: [], visitors: [], dedications: [], offerings: [] },
+                        JSON.parse(local)
+                    );
+                } catch (e) {}
+            }
+            dbReady = true;
+            await saveToServer();
         }
+        dbReady = true;
+    } catch (err) {
+        console.error(err);
+        alert('Cannot reach the database. Please refresh the page. Nothing will be saved until it connects.');
+    }
+}
+
+async function saveToServer() {
+    const changed = {};
+    Object.keys(db).forEach(k => {
+        if (JSON.stringify(db[k]) !== lastSynced[k]) changed[k] = db[k];
+    });
+    if (Object.keys(changed).length === 0) return;
+    const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(changed)
+    });
+    if (!res.ok) throw new Error('Save failed');
+    markSynced(Object.keys(changed));
+}
+
+function saveLocalDatabase() {
+    if (!dbReady) {
+        alert('Not connected to the database. Please refresh the page.');
+        return;
+    }
+    saveToServer().catch(() => alert('Could not save to the database. Check your internet and try again.'));
+    renderAllSections();
+    updateCharts();
+}
 
         function seedInitialData() {
             db.members = [
@@ -753,7 +807,7 @@
     const search = document.getElementById('memberSearch').value.toLowerCase();
     const classFilter = document.getElementById('classFilter').value;
 
-    try {
+        try {
         // Fetch members from Cloudflare D1 API
         const response = await fetch('/api/members');
         db.members = await response.json();
