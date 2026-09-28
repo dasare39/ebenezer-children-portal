@@ -1,16 +1,16 @@
 {
-  "name": "your-project-name",
+  "name": "ebenezer-children-portal",
   "main": "api.js",
   "compatibility_date": "2026-09-27",
   "assets": {
-    "directory": "./",        // must point to wherever index.html actually lives
+    "directory": "./public",
     "binding": "ASSETS"
   },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "your-db-name",
-      "database_id": "your-db-id"
+      "database_name": "attendance-db",
+      "database_id": "6a1b80b7-6d32-4e1f-a9d0-fb949e2cc687"
     }
   ]
 }
