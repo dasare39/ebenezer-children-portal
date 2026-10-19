@@ -201,6 +201,60 @@
                     </div>
                 </div>
 
+                <!-- Dashboard Birthday Widget -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-cake-candles text-pink-500"></i> Children Monthly Birthday Tracker
+                            </h3>
+                            <p class="text-xs text-slate-500">Select a month to view children celebrating their birthdays.</p>
+                        </div>
+                        <div>
+                            <select id="birthdayMonthSelect" onchange="renderDashboardBirthdays()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold outline-none bg-white">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-pink-50 border border-pink-100 p-4 rounded-xl">
+                        <div class="w-10 h-10 rounded-lg bg-pink-500 text-white flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase text-pink-700">Total Birthdays This Month</p>
+                            <h4 id="dash-birthday-count" class="text-xl font-bold text-pink-900">0 Children</h4>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 text-slate-700 font-bold uppercase">
+                                <tr>
+                                    <th class="p-2.5">Child's Name</th>
+                                    <th class="p-2.5">Date of Birth</th>
+                                    <th class="p-2.5">Age Turning</th>
+                                    <th class="p-2.5">Parent Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-birthday-tbody" class="divide-y divide-slate-100">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Financial & Attendance Charts -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -587,8 +641,18 @@
                     </table>
                 </div>
             </div>
-            <div class="bg-slate-100 px-6 py-3 flex justify-end">
-                <button onclick="closeLogModal()" class="bg-slate-700 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Close</button>
+            <div class="bg-slate-100 px-6 py-3 flex justify-between items-center">
+                <div>
+                    <button onclick="exportLogAbsentees()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-excel"></i> Export Absentees List
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="loadLogIntoActiveSheet()" class="bg-pentecost-blue text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-800">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit & Update Session
+                    </button>
+                    <button onclick="closeLogModal()" class="bg-slate-700 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -688,6 +752,13 @@
 
     initCharts();
     applyRolePermissions();
+
+    const currentMonthIndex = new Date().getMonth();
+    const monthSelect = document.getElementById('birthdayMonthSelect');
+    if (monthSelect) {
+        monthSelect.value = currentMonthIndex;
+        renderDashboardBirthdays();
+    }
 });
         
 
@@ -971,6 +1042,42 @@ function saveLocalDatabase() {
             }
         }
 
+        // birthday logic
+        function renderDashboardBirthdays() {
+            const selectedMonth = parseInt(document.getElementById('birthdayMonthSelect').value);
+            const tbody = document.getElementById('dash-birthday-tbody');
+            tbody.innerHTML = '';
+
+            const celebratingChildren = db.members.filter(m => {
+                if (!m.dob) return false;
+                const dobDate = new Date(m.dob);
+                return dobDate.getMonth() === selectedMonth;
+            });
+
+            document.getElementById('dash-birthday-count').innerText = `${celebratingChildren.length} Children`;
+
+            if (celebratingChildren.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400">No birthdays recorded for this month.</td></tr>`;
+                return;
+            }
+
+            celebratingChildren.forEach(m => {
+                const dobDate = new Date(m.dob);
+                const currentYear = new Date().getFullYear();
+                const turningAge = currentYear - dobDate.getFullYear();
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-semibold text-slate-800">${m.name}</td>
+                    <td class="p-2.5">${m.dob}</td>
+                    <td class="p-2.5 font-bold text-pink-600">${turningAge} Years</td>
+                    <td class="p-2.5">${m.contact} (${m.parent})</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         // --- ATTENDANCE ROSTER LOGIC ---
         function renderAttendanceRoster() {
             const tbody = document.getElementById('roster-tbody');
@@ -978,7 +1085,7 @@ function saveLocalDatabase() {
             tbody.innerHTML = '';
 
             // Filter active children under 13 for weekly attendance
-            const activeChildren = db.members.filter(m => m.status === 'Active' && (calculateAge(m.dob) === null || calculateAge(m.dob) <= 12));
+           const activeChildren = db.members.filter(m => m.status === 'Active');
 
             activeChildren.forEach(m => {
                 if (!(m.id in attendanceSheet)) {
@@ -1121,9 +1228,12 @@ function saveLocalDatabase() {
             });
         }
 
+        let currentEditingLogId = null;
+
         function viewLogDetails(id) {
             const log = db.attendanceLogs.find(l => l.id === id);
             if (!log) return;
+            currentEditingLogId = log.id;
 
             document.getElementById('modalLogTitle').innerText = `${log.serviceType}`;
             document.getElementById('modalLogSub').innerText = `Date: ${log.date} | Recorded By: ${log.recorder}`;
@@ -1148,6 +1258,51 @@ function saveLocalDatabase() {
             });
 
             document.getElementById('logDetailModal').classList.remove('hidden');
+        }
+
+        function exportLogAbsentees() {
+            const log = db.attendanceLogs.find(l => l.id === currentEditingLogId);
+            if (!log) return;
+
+            const absentees = log.snapshot.filter(s => !s.present).map(s => {
+                const member = db.members.find(m => m.id === s.id) || {};
+                return {
+                    "Child Name": s.name,
+                    "Class Group": s.classGroup,
+                    "Parent/Guardian": member.parent || 'N/A',
+                    "Parent Phone Number": member.contact || 'N/A',
+                    "Status": "Absent"
+                };
+            });
+
+            if (absentees.length === 0) {
+                alert("No absentees recorded for this session!");
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(absentees);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Absentees");
+            XLSX.writeFile(wb, `Absentees_${log.date}.xlsx`);
+        }
+
+        function loadLogIntoActiveSheet() {
+            const log = db.attendanceLogs.find(l => l.id === currentEditingLogId);
+            if (!log) return;
+
+            attendanceSheet = {};
+            log.snapshot.forEach(item => {
+                attendanceSheet[item.id] = item.present;
+            });
+
+            document.getElementById('sheetDate').value = log.date;
+            document.getElementById('sheetServiceType').value = log.serviceType;
+            document.getElementById('sheetRecorder').value = log.recorder;
+
+            closeLogModal();
+            switchTab('attendance');
+            renderAttendanceRoster();
+            alert("Session loaded into the marking register. Make your additions/changes and click 'Save Attendance' to update.");
         }
 
         function closeLogModal() {
