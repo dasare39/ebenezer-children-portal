@@ -1053,11 +1053,12 @@ function saveLocalDatabase() {
             const tbody = document.getElementById('birthdayTableBody');
             tbody.innerHTML = '';
 
+            // Filter children for the selected month AND sort them by date (day-by-day)
             const celebratingChildren = db.members.filter(m => {
                 if (!m.dob) return false;
                 const dobDate = new Date(m.dob);
                 return dobDate.getMonth() === selectedMonth;
-            });
+            }).sort((a, b) => new Date(a.dob) - new Date(b.dob));
 
             document.getElementById('dash-birthday-count').innerText = `${celebratingChildren.length} Children`;
 
@@ -1082,7 +1083,6 @@ function saveLocalDatabase() {
                 tbody.appendChild(tr);
             });
         }
-
         function toggleBirthdayList() {
             const container = document.getElementById('birthdayTableContainer');
             const textEl = document.getElementById('birthdayToggleText');
