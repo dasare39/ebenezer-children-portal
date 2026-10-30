@@ -398,61 +398,91 @@
                 </div>
             </section>
 
-            <!-- 3. MARK ATTENDANCE TAB -->
-            <section id="tab-attendance" class="tab-content hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-900">Mark Children Attendance</h2>
-                            <p class="text-slate-500 text-sm">Select date and toggle present/absent for children.</p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="markAllAttendance(true)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-check-double mr-1"></i> Mark All Present</button>
-                            <button onclick="markAllAttendance(false)" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-xmark mr-1"></i> Mark All Absent</button>
-                            <button onclick="saveAttendanceSession()" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Attendance</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Service Date *</label><input type="date" id="sheetDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Service Type *</label><select id="sheetServiceType" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none bg-white"><option>Sunday Children Service</option>
-                            <option>Evening Service</option>
-                            <!-- <option>Special Revival Service</option>
-                            <option>Vacation Bible School</option> -->
-                        </select></div>
-                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Recorded By</label><input type="text" id="sheetRecorder" placeholder="e.g. Teacher Mercy" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                    </div>
-                </div>
+           <!-- 3. MARK ATTENDANCE TAB -->
+<section id="tab-attendance" class="tab-content hidden space-y-6">
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Mark Children Attendance</h2>
+                <p class="text-slate-500 text-sm">Select section group, date, and toggle present/absent for children.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="markAllAttendance(true)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-check-double mr-1"></i> Mark Group Present</button>
+                <button onclick="markAllAttendance(false)" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><i class="fa-solid fa-xmark mr-1"></i> Mark Group Absent</button>
+                <button onclick="saveAttendanceSession()" class="bg-pentecost-blue hover:bg-blue-800 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Attendance</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Class Section / Group *</label>
+                <select id="sheetClassGroup" onchange="renderAttendanceRoster()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold outline-none bg-white focus:ring-2 focus:ring-pentecost-blue">
+                    <option value="All">All Groups (Entire Ministry)</option>
+                    <option value="0 - 6 Years">Class: 0 - 6 Years</option>
+                    <option value="7 - 9 Years">Class: 7 - 9 Years</option>
+                    <option value="10 - 12 Years">Class: 10 - 12 Years</option>
+                    <option value="13+ Transferred">Youth (13+ Years)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Service Date *</label>
+                <input type="date" id="sheetDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Service Type *</label>
+                <select id="sheetServiceType" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                    <option>Sunday Children Service</option>
+                    <option>Evening Service</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Teacher / Recorder Name *</label>
+                <input type="text" id="sheetRecorder" placeholder="e.g. Teacher Mercy" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+            </div>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div class="bg-emerald-500 text-white p-4 rounded-xl shadow-sm text-center"><p class="text-xs uppercase tracking-wider font-medium opacity-90">Present</p><h4 id="count-present" class="text-2xl font-bold">0</h4></div>
-                    <div class="bg-rose-500 text-white p-4 rounded-xl shadow-sm text-center"><p class="text-xs uppercase tracking-wider font-medium opacity-90">Absent</p><h4 id="count-absent" class="text-2xl font-bold">0</h4></div>
-                    <div class="bg-slate-800 text-white p-4 rounded-xl shadow-sm text-center col-span-2 sm:col-span-1"><p class="text-xs uppercase tracking-wider font-medium opacity-90">Total Active Children</p><h4 id="count-headcount" class="text-2xl font-bold">0</h4></div>
-                </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div class="bg-emerald-500 text-white p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs uppercase tracking-wider font-medium opacity-90">Present (Selected Group)</p>
+            <h4 id="count-present" class="text-2xl font-bold">0</h4>
+        </div>
+        <div class="bg-rose-500 text-white p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs uppercase tracking-wider font-medium opacity-90">Absent (Selected Group)</p>
+            <h4 id="count-absent" class="text-2xl font-bold">0</h4>
+        </div>
+        <div class="bg-slate-800 text-white p-4 rounded-xl shadow-sm text-center col-span-2 sm:col-span-1">
+            <p class="text-xs uppercase tracking-wider font-medium opacity-90">Group Total Children</p>
+            <h4 id="count-headcount" class="text-2xl font-bold">0</h4>
+        </div>
+    </div>
 
-                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                    <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div class="relative w-full sm:w-64"><i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i><input type="text" id="rosterSearch" oninput="renderAttendanceRoster()" placeholder="Search roster..." class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm outline-none"></div>
-                        <div class="flex items-center gap-1 bg-slate-200 p-1 rounded-lg text-xs font-semibold">
-                            <button onclick="setRosterFilter('all')" id="filter-all" class="px-3 py-1 rounded-md bg-white text-slate-800 shadow-sm">All</button>
-                            <button onclick="setRosterFilter('present')" id="filter-present" class="px-3 py-1 rounded-md text-slate-600">Present</button>
-                            <button onclick="setRosterFilter('absent')" id="filter-absent" class="px-3 py-1 rounded-md text-slate-600">Absent</button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto w-full">
-                        <table class="w-full text-left border-collapse text-sm text-slate-600">
-                            <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-bold">
-                                <tr>
-                                    <th class="px-6 py-3">Child's Name</th>
-                                    <th class="px-6 py-3">Class Group</th>
-                                    <th class="px-6 py-3">Parent Contact</th>
-                                    <th class="px-6 py-3 text-center">Mark Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="roster-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="relative w-full sm:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                <input type="text" id="rosterSearch" oninput="renderAttendanceRoster()" placeholder="Search roster..." class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm outline-none">
+            </div>
+            <div class="flex items-center gap-1 bg-slate-200 p-1 rounded-lg text-xs font-semibold">
+                <button onclick="setRosterFilter('all')" id="filter-all" class="px-3 py-1 rounded-md bg-white text-slate-800 shadow-sm">All</button>
+                <button onclick="setRosterFilter('present')" id="filter-present" class="px-3 py-1 rounded-md text-slate-600">Present</button>
+                <button onclick="setRosterFilter('absent')" id="filter-absent" class="px-3 py-1 rounded-md text-slate-600">Absent</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse text-sm text-slate-600">
+                <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-bold">
+                    <tr>
+                        <th class="px-6 py-3">Child's Name</th>
+                        <th class="px-6 py-3">Class Group</th>
+                        <th class="px-6 py-3">Parent Contact</th>
+                        <th class="px-6 py-3 text-center">Mark Status</th>
+                    </tr>
+                </thead>
+                <tbody id="roster-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
             <!-- 4. ATTENDANCE HISTORICAL LOGS TAB -->
             <section id="tab-attendance-logs" class="tab-content hidden space-y-6">
@@ -1103,127 +1133,156 @@ function saveLocalDatabase() {
             }
         }
 
-        // --- ATTENDANCE ROSTER LOGIC ---
-        function renderAttendanceRoster() {
-            const tbody = document.getElementById('roster-tbody');
-            const search = document.getElementById('rosterSearch').value.toLowerCase();
-            tbody.innerHTML = '';
+       // --- ATTENDANCE ROSTER LOGIC WITH SECTION GROUPING ---
+function renderAttendanceRoster() {
+    const tbody = document.getElementById('roster-tbody');
+    const search = document.getElementById('rosterSearch').value.toLowerCase();
+    const selectedGroup = document.getElementById('sheetClassGroup').value;
+    tbody.innerHTML = '';
 
-            // Filter active children under 13 for weekly attendance
-           const activeChildren = db.members.filter(m => m.status === 'Active' || m.status === 'Transferred to Youth');
+    // Filter active members
+    const activeChildren = db.members.filter(m => m.status === 'Active' || m.status === 'Transferred to Youth');
 
-            activeChildren.forEach(m => {
-                if (!(m.id in attendanceSheet)) {
-                    attendanceSheet[m.id] = true; // Default Present
-                }
-            });
+    // Ensure default state in attendance sheet
+    activeChildren.forEach(m => {
+        if (!(m.id in attendanceSheet)) {
+            attendanceSheet[m.id] = true; // Default Present
+        }
+    });
 
-            let presentCount = 0;
-            let absentCount = 0;
+    // Filter children belonging to selected class group
+    const groupChildren = activeChildren.filter(m => {
+        const classInfo = getClassGroupAndStatus(m.dob);
+        if (selectedGroup === 'All') return true;
+        if (selectedGroup === '13+ Transferred') {
+            return classInfo.group === '13+ Transferred' || m.status === 'Transferred to Youth';
+        }
+        return classInfo.group === selectedGroup;
+    });
 
-            const filtered = activeChildren.filter(m => {
-                const matchesSearch = m.name.toLowerCase().includes(search) || m.parent.toLowerCase().includes(search);
-                const isPresent = attendanceSheet[m.id];
-                if (rosterFilter === 'present' && !isPresent) return false;
-                if (rosterFilter === 'absent' && isPresent) return false;
-                return matchesSearch;
-            });
+    // Count present / absent for current group view
+    let presentCount = 0;
+    let absentCount = 0;
+    groupChildren.forEach(m => {
+        if (attendanceSheet[m.id]) presentCount++;
+        else absentCount++;
+    });
 
-            activeChildren.forEach(m => {
-                if (attendanceSheet[m.id]) presentCount++;
-                else absentCount++;
-            });
+    document.getElementById('count-present').innerText = presentCount;
+    document.getElementById('count-absent').innerText = absentCount;
+    document.getElementById('count-headcount').innerText = groupChildren.length;
 
-            document.getElementById('count-present').innerText = presentCount;
-            document.getElementById('count-absent').innerText = absentCount;
-            document.getElementById('count-headcount').innerText = activeChildren.length;
+    // Apply status filter and search query
+    const filtered = groupChildren.filter(m => {
+        const matchesSearch = m.name.toLowerCase().includes(search) || (m.parent || '').toLowerCase().includes(search);
+        const isPresent = attendanceSheet[m.id];
+        if (rosterFilter === 'present' && !isPresent) return false;
+        if (rosterFilter === 'absent' && isPresent) return false;
+        return matchesSearch;
+    });
 
-            filtered.forEach(m => {
-                const isPresent = attendanceSheet[m.id];
-                const classInfo = getClassGroupAndStatus(m.dob);
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition";
-                tr.innerHTML = `
-                    <td class="px-6 py-3 font-semibold text-slate-800">${m.name}</td>
-                    <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-xs font-bold border ${classInfo.badgeClass}">${classInfo.group}</span></td>
-                    <td class="px-6 py-3">${m.contact} (${m.parent})</td>
-                    <td class="px-6 py-3 text-center">
-                        <button onclick="toggleAttendanceStatus('${m.id}')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition ${isPresent ? 'bg-emerald-500 text-white shadow-sm' : 'bg-rose-500 text-white shadow-sm'}">
-                            ${isPresent ? '<i class="fa-solid fa-check mr-1"></i> PRESENT' : '<i class="fa-solid fa-xmark mr-1"></i> ABSENT'}
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400">No children found for section: ${selectedGroup}</td></tr>`;
+        return;
+    }
+
+    filtered.forEach(m => {
+        const isPresent = attendanceSheet[m.id];
+        const classInfo = getClassGroupAndStatus(m.dob);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+            <td class="px-6 py-3 font-semibold text-slate-800">${m.name}</td>
+            <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-xs font-bold border ${classInfo.badgeClass}">${classInfo.group}</span></td>
+            <td class="px-6 py-3">${m.contact || ''} (${m.parent || ''})</td>
+            <td class="px-6 py-3 text-center">
+                <button onclick="toggleAttendanceStatus('${m.id}')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition ${isPresent ? 'bg-emerald-500 text-white shadow-sm' : 'bg-rose-500 text-white shadow-sm'}">
+                    ${isPresent ? '<i class="fa-solid fa-check mr-1"></i> PRESENT' : '<i class="fa-solid fa-xmark mr-1"></i> ABSENT'}
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function markAllAttendance(status) {
+    const selectedGroup = document.getElementById('sheetClassGroup').value;
+    
+    db.members.forEach(m => {
+        const classInfo = getClassGroupAndStatus(m.dob);
+        let inGroup = false;
+
+        if (selectedGroup === 'All') {
+            inGroup = true;
+        } else if (selectedGroup === '13+ Transferred') {
+            inGroup = classInfo.group === '13+ Transferred' || m.status === 'Transferred to Youth';
+        } else {
+            inGroup = classInfo.group === selectedGroup;
         }
 
-        function toggleAttendanceStatus(id) {
-            attendanceSheet[id] = !attendanceSheet[id];
-            renderAttendanceRoster();
+        if (inGroup) {
+            attendanceSheet[m.id] = status;
         }
+    });
 
-        function markAllAttendance(status) {
-            db.members.forEach(m => { attendanceSheet[m.id] = status; });
-            renderAttendanceRoster();
+    renderAttendanceRoster();
+}
+
+function saveAttendanceSession() {
+    const date = document.getElementById('sheetDate').value;
+    const group = document.getElementById('sheetClassGroup').value;
+    const serviceType = document.getElementById('sheetServiceType').value;
+    const recorder = document.getElementById('sheetRecorder').value || 'Teacher';
+
+    if (!date) { alert("Please select a valid service date."); return; }
+
+    const activeChildren = db.members.filter(m => m.status === 'Active' || m.status === 'Transferred to Youth');
+    
+    const groupChildren = activeChildren.filter(m => {
+        const classInfo = getClassGroupAndStatus(m.dob);
+        if (group === 'All') return true;
+        if (group === '13+ Transferred') {
+            return classInfo.group === '13+ Transferred' || m.status === 'Transferred to Youth';
         }
+        return classInfo.group === group;
+    });
 
-        function setRosterFilter(filter) {
-            rosterFilter = filter;
-            ['all', 'present', 'absent'].forEach(f => {
-                const btn = document.getElementById(`filter-${f}`);
-                if (f === filter) {
-                    btn.className = "px-3 py-1 rounded-md bg-white text-slate-800 shadow-sm font-bold";
-                } else {
-                    btn.className = "px-3 py-1 rounded-md text-slate-600 font-normal";
-                }
-            });
-            renderAttendanceRoster();
-        }
+    const snapshot = groupChildren.map(m => ({
+        id: m.id,
+        name: m.name,
+        classGroup: getClassGroupAndStatus(m.dob).group,
+        present: !!attendanceSheet[m.id]
+    }));
 
-        function saveAttendanceSession() {
-            const date = document.getElementById('sheetDate').value;
-            const serviceType = document.getElementById('sheetServiceType').value;
-            const recorder = document.getElementById('sheetRecorder').value || 'Secretary';
+    const presentCount = snapshot.filter(s => s.present).length;
+    const absentCount = snapshot.filter(s => !s.present).length;
 
-            if (!date) { alert("Please select a valid date."); return; }
+    const newLog = {
+        id: Date.now().toString(),
+        date: date,
+        serviceType: `${serviceType} [${group}]`,
+        recorder: recorder,
+        presentCount: presentCount,
+        absentCount: absentCount,
+        snapshot: snapshot
+    };
 
-           const activeChildren = db.members.filter(m => m.status === 'Active' || m.status === 'Transferred to Youth');
-            const snapshot = activeChildren.map(m => ({
-                id: m.id,
-                name: m.name,
-                classGroup: getClassGroupAndStatus(m.dob).group,
-                present: !!attendanceSheet[m.id]
-            }));
+    db.attendanceLogs.unshift(newLog);
+    saveLocalDatabase();
 
-            const presentCount = snapshot.filter(s => s.present).length;
-            const absentCount = snapshot.filter(s => !s.present).length;
+    // Sync to Cloudflare D1
+    fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newLog)
+    }).then(res => {
+        if (res.ok) console.log("Saved to Cloudflare D1");
+        else console.error("Cloud save failed");
+    });
 
-            const newLog = {
-                id: Date.now().toString(),
-                date: date,
-                serviceType: serviceType,
-                recorder: recorder,
-                presentCount: presentCount,
-                absentCount: absentCount,
-                snapshot: snapshot
-            };
-
-            db.attendanceLogs.unshift(newLog);
-            saveLocalDatabase();
-
-            // --- NEW: Save to Cloudflare D1 ---
-            fetch('/api/attendance', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newLog)
-            }).then(res => {
-              if(res.ok) console.log("Saved to Cloudflare D1");
-              else console.error("Cloud save failed");
-            });
-
-            alert("Attendance session saved successfully!");
-            switchTab('attendance-logs');
-        }
+    alert(`Attendance saved for section "${group}"!`);
+    switchTab('attendance-logs');
+}
 
         // --- HISTORICAL LOGS ---
         function renderAttendanceLogs() {
